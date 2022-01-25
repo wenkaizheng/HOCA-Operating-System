@@ -6,12 +6,22 @@
 
 semd_t semd_table[MAXPROC];
 semd_t* cur_sem;
-semd_t* free_head;
+semd_t* free_head_s;
 
 void setSem(int *semAdd, proc_t *p){
-    for(int i = 0; i<SEMMAX; i++){
+    int i;
+    for(i = 0; i<SEMMAX; i++){
         if (p->semvec[i] == (int*)ENULL){
             p->semvec[i] = semAdd;
+            break;
+        }
+    }
+}
+void setSem2(int *semAdd, proc_t *p){
+    int i;
+    for(i = 0; i<SEMMAX; i++){
+        if (p->semvec[i] == semAdd){
+            p->semvec[i] = (int*)ENULL;
             break;
         }
     }
@@ -34,13 +44,13 @@ void removeBlockHelper(semd_t* walker){
     else{
         cur_sem = (semd_t *) ENULL;
     }
-    if (free_head == (semd_t *) ENULL){
+    if (free_head_s == (semd_t *) ENULL){
         walker->s_prev = (semd_t *) ENULL;
         walker->s_next = (semd_t *) ENULL;
         walker->s_semAdd = (int*) ENULL;
-        free_head = walker;
+        free_head_s = walker;
     }else{
-        semd_t* walker2 = free_head;
+        semd_t* walker2 = free_head_s;
         // insert to end of walker2
         while(walker2->s_next!= (semd_t*)ENULL){
             walker2 = walker2->s_next;
@@ -53,10 +63,10 @@ void removeBlockHelper(semd_t* walker){
 }
 int insertBlocked(int *semAdd, proc_t *p){
     if (cur_sem == (semd_t *)ENULL){
-        cur_sem = free_head;
-        free_head = free_head->s_next;
+        cur_sem = free_head_s;
+        free_head_s = free_head_s->s_next;
         cur_sem->s_next =  (semd_t *)ENULL;
-        free_head->s_prev =  (semd_t *)ENULL;
+        free_head_s->s_prev =  (semd_t *)ENULL;
         cur_sem->s_semAdd = semAdd;
         // todo insert before loop or after is also ok
         insertProc(&(cur_sem->s_link),p);
@@ -71,18 +81,18 @@ int insertBlocked(int *semAdd, proc_t *p){
              walker = walker->s_next;
         }
         // if not found we need to create one
-        if (walker == (semd_t *)ENULL && free_head == (semd_t *)ENULL){
+        if (walker == (semd_t *)ENULL && free_head_s == (semd_t *)ENULL){
                 return TRUE;
         }
         if (walker == (semd_t *)ENULL){
-            semd_t * new_sem = free_head;
-            free_head = free_head->s_next;
+            semd_t * new_sem = free_head_s;
+            free_head_s = free_head_s->s_next;
             new_sem ->s_next = (semd_t *)ENULL;
             new_sem->s_semAdd = semAdd;
             prev->s_next = new_sem;
             new_sem->s_prev = prev;
-            if (free_head != (semd_t *)ENULL){
-                free_head->s_prev = (semd_t *)ENULL;
+            if (free_head_s != (semd_t *)ENULL){
+                free_head_s->s_prev = (semd_t *)ENULL;
             }
             setSem(semAdd,p);
             insertProc(&(new_sem->s_link),p);
@@ -97,26 +107,22 @@ int insertBlocked(int *semAdd, proc_t *p){
 }
 
 int initSemd(){
-    for(int i = 0; i < MAXPROC; i++){
+    int i;
+    for(i = 0; i < MAXPROC; i++){
         semd_table[i].s_next = (semd_t *) ENULL;
         semd_table[i].s_prev = (semd_t *) ENULL;
         semd_table[i].s_link.next = (proc_t*)ENULL;
         semd_table[i].s_link.index = ENULL;
         semd_table[i].s_semAdd = (int*)ENULL;
     }
-    for(int i = 0; i<MAXPROC; i++){
-        if (i == 0){
-            semd_table[i].s_next = &semd_table[i+1];
-        }
-        else if ( i == MAXPROC - 1){
-            semd_table[i].s_prev = &semd_table[i-1];
-        }else{
-            semd_table[i].s_next = &semd_table[i+1];
-            semd_table[i].s_prev = &semd_table[i-1];
-        }
+    for(i = 1; i<MAXPROC-1; i++){
+        semd_table[i].s_next = &semd_table[i+1];
+        semd_table[i].s_prev = &semd_table[i-1];
     }
+    semd_table[0].s_next = &semd_table[1];
+    semd_table[19].s_prev = &semd_table[18];
     cur_sem = (semd_t *) ENULL;
-    free_head = &(semd_table[0]);
+    free_head_s = &(semd_table[0]);
     return 0;
 }
 proc_t* removeBlocked(int *semAdd){
@@ -129,7 +135,7 @@ proc_t* removeBlocked(int *semAdd){
         return (proc_t *)ENULL;
     }
     proc_t* rv = removeProc(&(walker->s_link));
-    setSem(semAdd,rv);
+    setSem2(semAdd,rv);
     // to check if it empty the queue
     proc_t* associate_queue = headBlocked(semAdd);
     if (associate_queue == (proc_t*) ENULL){
@@ -140,14 +146,15 @@ proc_t* removeBlocked(int *semAdd){
 
 proc_t* outBlocked(proc_t *p){
     proc_t* rv = (proc_t*)ENULL;
-    for (int i=0;i<SEMMAX;i++){
+    int i;
+    for (i=0;i<SEMMAX;i++){
         if (p->semvec[i] != (int*) ENULL){
             semd_t* walker = cur_sem;
-            while(walker != (semd_t *) ENULL && walker->s_semAdd != p->semvec[i]  ){
+            while(walker != (semd_t *) ENULL && walker->s_semAdd != p->semvec[i]){
                 walker = walker->s_next;
             }
             if (walker == (semd_t *) ENULL ){
-                return  (proc_t*) ENULL;
+                continue;
             }else{
                 p->semvec[i] = (int *)ENULL;
                 rv = outProc(&(walker->s_link), p);
