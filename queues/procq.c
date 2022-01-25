@@ -32,15 +32,17 @@ proc_t* allocProc(){
     return rv;
 }
 int initProc(){
-    for (int i = 0; i< MAXPROC; i++){
-        for (int j = 0; j< SEMMAX; j++){
+    int i;
+    int j;
+    for (i = 0; i< MAXPROC; i++){
+        for (j = 0; j< SEMMAX; j++){
             proc_table[i].p_link[j].index =  ENULL;
             proc_table[i].p_link[j].next = (proc_t *) ENULL;
             proc_table[i].semvec[j] = (int *)ENULL;
         }
         proc_table[i].qcount = 0;
     }
-    for(int i = 0;i < MAXPROC -1; i++){
+    for(i = 0;i < MAXPROC -1; i++){
         proc_table[i].p_link[0].index = 0;
         proc_table[i].p_link[0].next = &(proc_table[i+1]);
     }
@@ -114,7 +116,8 @@ proc_t* removeProc(proc_link* tp){
 }
 
 int freeProc(proc_t* p){
-    for (int i=0;i<SEMMAX;i++){
+    int i;
+    for (i=0;i<SEMMAX;i++){
         p->p_link[i].next = (proc_t *)ENULL;
         p->p_link[i].index = ENULL;
         p->semvec[i] = (int *)ENULL;
