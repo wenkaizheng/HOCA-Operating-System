@@ -94,12 +94,12 @@ int insertBlocked(int *semAdd, proc_t *p){
             if (free_head_s != (semd_t *)ENULL){
                 free_head_s->s_prev = (semd_t *)ENULL;
             }
-            setSem(semAdd,p);
             insertProc(&(new_sem->s_link),p);
+            setSem(semAdd,p);
             return FALSE;
         }else{
-            setSem(semAdd,p);
             insertProc(& walker->s_link, p);
+            setSem(semAdd,p);
             return FALSE;
         }
 
