@@ -3,7 +3,6 @@
 #include "../h/const.h"
 #include "../h/types.h"
 #include "../h/procq.e"
-#include "../h/asl.h"
 #include "../h/asl.e"
 
 semd_t semd_table[MAXPROC];
