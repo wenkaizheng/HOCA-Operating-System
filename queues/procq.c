@@ -42,6 +42,17 @@ int initProc(){
             proc_table[i].semvec[j] = (int *)ENULL;
         }
         proc_table[i].qcount = 0;
+        proc_table[i].cpu_time = 0;
+        proc_table[i].start_time = 0;
+        proc_table[i].prog_old = (state_t*) ENULL;
+        proc_table[i].prog_new = (state_t*) ENULL;
+        proc_table[i].system_call_old = (state_t*) ENULL;
+        proc_table[i].system_call_new = (state_t*)ENULL;
+        proc_table[i].memory_management_old = (state_t*) ENULL;
+        proc_table[i].memory_management_new = (state_t*) ENULL;
+        proc_table[i].parent = (proc_t*)ENULL;
+        proc_table[i].child = (proc_t*)ENULL;
+        proc_table[i].brother = (proc_t*)ENULL;
     }
     for(i = 0;i < MAXPROC -1; i++){
         proc_table[i].p_link[0].index = 0;
