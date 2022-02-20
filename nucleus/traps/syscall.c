@@ -13,7 +13,7 @@ void Create_Process(state_t* old_state){
     if (cur == (proc_t *)ENULL){
         old_state->s_r[2] = -1;
     }else{
-        cur->p_s = *((state_t*)old_state->s_r[4]);
+        fork_process->p_s = *((state_t*)old_state->s_r[4]);
         if (cur->child == (proc_t *)ENULL){
             cur->child = fork_process;
             fork_process->parent = cur;
@@ -31,7 +31,7 @@ void Create_Process(state_t* old_state){
     }
 }
 void Terminate_Process_Helper(proc_t* cur){
-    if (cur->child == (proc_t *)ENULL){
+    if (cur == (proc_t *)ENULL || cur->child == (proc_t *)ENULL){
         return;
     }else{
         proc_t* tmp;
@@ -97,6 +97,7 @@ void Terminate_Process(){
     }
     Terminate_Process_Helper(cur);
     freeProc(outProc(&running_queue,cur));
+    schedule();
 }
 void Sem_OP(state_t* old_state){
     proc_t* cur = headQueue(running_queue);
@@ -121,6 +122,7 @@ void Sem_OP(state_t* old_state){
     }
     if(flag){
         removeProc(&running_queue);
+        schedule();
     }
 }
 void Specify_Trap_State_Vector(state_t* old_state){
