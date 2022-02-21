@@ -26,6 +26,7 @@ void schedule(){
         intdeadlock();
     }else{
         intschedule();
+        cur =  headQueue(running_queue);
         start_time(cur);
         LDST(&(cur->p_s));
     }
