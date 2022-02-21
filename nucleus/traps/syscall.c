@@ -31,21 +31,13 @@ void Create_Process(state_t* old_state){
         old_state->s_r[2] = 0;
     }
 }
-void helper(proc_t* p){
-    int i ;
-    for(i = 0;i<SEMMAX;i++){
-        if (p->semvec[i]!= (int*)ENULL){
-            *(p->semvec[i]) += 1;
-        }
-    }
-}
+
 void check_sibling(proc_t* cur){
     proc_t* tmp;
     proc_t* first_child = cur->child;
     while(first_child->brother != (proc_t *)ENULL){
         tmp = first_child->brother;
         first_child->brother = (proc_t *)ENULL;
-        helper(first_child);
         proc_t* removed = outBlocked(first_child);
         // either in sem list or running queue
         if (removed == (proc_t *)ENULL){
@@ -59,8 +51,6 @@ void check_sibling(proc_t* cur){
        // print("rm process");
         first_child = tmp;
     }
-   // print("53th");
-    helper(first_child);
     proc_t* removed = outBlocked(first_child);
     // either in sem list or running queue
     if (removed == (proc_t *)ENULL){
@@ -71,7 +61,6 @@ void check_sibling(proc_t* cur){
         check_sibling(removed);
     }
     freeProc(removed);
-    //print("rm process");
     // last one undo the link
     first_child->parent =  (proc_t *)ENULL;
     cur->child = (proc_t *)ENULL;

@@ -150,6 +150,7 @@ proc_t* outBlocked(proc_t *p){
     int i;
     for (i=0;i<SEMMAX;i++){
         if (p->semvec[i] != (int*) ENULL){
+            *(p->semvec[i]) += 1;
             semd_t* walker = cur_sem;
             while(walker != (semd_t *) ENULL && walker->s_semAdd != p->semvec[i]){
                 walker = walker->s_next;
