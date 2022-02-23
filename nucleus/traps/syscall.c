@@ -65,16 +65,6 @@ void check_sibling(proc_t* cur){
     first_child->parent =  (proc_t *)ENULL;
     cur->child = (proc_t *)ENULL;
 }
-void Terminate_Process_Helper(proc_t* cur){
-    if (cur->child == (proc_t *)ENULL){
-        freeProc(outProc(&running_queue,cur));
-        //print("rm process");
-    }else{
-        check_sibling(cur);
-        freeProc(outProc(&running_queue,cur));
-       // print("rm process");
-    }
-}
 void Terminate_Process(){
     proc_t* cur = headQueue(running_queue);
     if (cur->parent != (proc_t *)ENULL && cur->brother == (proc_t *)ENULL){
@@ -108,7 +98,14 @@ void Terminate_Process(){
                 cur->brother = (proc_t *)ENULL;
             }
     }
-    Terminate_Process_Helper(cur);
+    if (cur->child == (proc_t *)ENULL){
+        freeProc(outProc(&running_queue,cur));
+        //print("rm process");
+    }else{
+        check_sibling(cur);
+        freeProc(outProc(&running_queue,cur));
+        // print("rm process");
+    }
     schedule();
 }
 void Sem_OP(state_t* old_state){
