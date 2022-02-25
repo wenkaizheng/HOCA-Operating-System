@@ -1,3 +1,5 @@
+// This code is my own work, it was written without
+// consulting a tutor or code written by other students-Wenkai Zheng
 #include "../../h/const.h"
 #include "../../h/types.h"
 #include "../../h/vpop.h"
