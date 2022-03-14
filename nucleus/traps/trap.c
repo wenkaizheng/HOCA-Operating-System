@@ -84,7 +84,7 @@ void static trapsyshandler(){
             Sem_OP(old_sys_call_state);
             break;
         case 4:
-            notused();
+            notused(old_sys_call_state);
             break;
         case 5:
             Specify_Trap_State_Vector(old_sys_call_state);
@@ -93,10 +93,10 @@ void static trapsyshandler(){
             Get_CPU_Time(old_sys_call_state);
             break;
         case 7:
-            waitforpclock();
+            waitforpclock(old_sys_call_state);
             break;
         case 8:
-            waitforio();
+            waitforio(old_sys_call_state);
             break;
         default:
             // check the sys call
