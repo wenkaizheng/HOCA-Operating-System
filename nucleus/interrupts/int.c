@@ -220,7 +220,7 @@ void static intclockhandler(){
 }
 void printer(int status){
     if (status == 0){
-        // not normal
+        // normal
         char a[100] = "nucleus: normal termination";
         dev_arr[5]->d_stat = -1;
         dev_arr[5]->d_badd = a;
@@ -231,7 +231,6 @@ void printer(int status){
     }else{
         char a[100] = "nucleus: deadlock termination";
         dev_arr[5]->d_stat = -1;
-        dev_arr[5]->d_op = -1;
         dev_arr[5]->d_badd = a;
         dev_arr[5]->d_amnt = strlen(a);
         dev_arr[5]->d_op = IOWRITE;
