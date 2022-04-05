@@ -28,7 +28,7 @@ typedef struct saved_info{
 }saved_info;
 saved_info save_arr[15];
 int clock_interrupt_time = 100000;
-int quantum = 50000;
+int quantum = 5000;
 int clock_count = 0;
 void static intsemop(int* sem_value, int op);
 void static intterminalhandler();
@@ -81,7 +81,7 @@ void intinit()
 
 
     old_floppy_state = (state_t*)0xb90;
-    state_t* new_floppy_state = (state_t *)0x9c8+1;
+    state_t* new_floppy_state = (state_t *)0xb90+1;
     new_floppy_state->s_pc = (int) intfloppyhandler;
     new_floppy_state->s_sp = init_state.s_sp;
     new_floppy_state->s_sr.ps_s = 1;
