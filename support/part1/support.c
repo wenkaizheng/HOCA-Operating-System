@@ -351,8 +351,20 @@ void static slsyshandler(){
         case 10:
             Write_to_Terminal(&sa[num].sys_old,num);
             break;
+        case 11:
+            V_Virtual_Semaphore(&sa[num].sys_old,num);
+            break;
+        case 12:
+            P_Virtual_Semaphore(&sa[num].sys_old,num);
+            break;
         case 13:
             Delay(&sa[num].sys_old,num);
+            break;
+        case 14:
+            Disk_Put(&sa[num].sys_old,num);
+            break;
+        case 15:
+            Disk_Get(&sa[num].sys_old,num);
             break;
         case 16:
             Get_Time_of_Day(&sa[num].sys_old,num);
