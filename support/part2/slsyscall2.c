@@ -51,7 +51,6 @@ void P_Virtual_Semaphore(state_t* old_state, int num){
 }
 
 void V_Virtual_Semaphore(state_t* old_state, int num){
-    vpop sem_op;
     P(&protected_sem);
     int* vpop_addr = (int*) (old_state->s_r[4]);
     if (vpop_addr >= (int*)SEG2){
