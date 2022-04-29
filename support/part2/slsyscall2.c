@@ -18,34 +18,23 @@ register int r3 asm("%d3");
 register int r4 asm("%d4");
 
 void P_Virtual_Semaphore(state_t* old_state, int num){
+    P(&protected_sem);
     int* vpop_addr = (int*) (old_state->s_r[4]);
     if (vpop_addr >= (int*)SEG2){
-         // check large than 0
+        // check large than 0
          if (*vpop_addr > 0){
              *vpop_addr -= 1;
+             V(&protected_sem);
          }else{
              int i;
              for (i = 0;i<MAXPROC;i++){
                  if(vs_arr[i].addr == 0){
-                     // exclusive
-                     vpop sem_op;
-
-                     sem_op.op = LOCK;
-                     sem_op.sem = &protected_sem;
-                     r3 = 1;
-                     r4 = (int)&sem_op;
-                     SYS3();
 
                      vs_arr[i].addr = vpop_addr;
-
-                     sem_op.op = UNLOCK;
-                     sem_op.sem = &protected_sem;
-                     r3 = 1;
-                     r4 = (int)&sem_op;
-                     SYS3();
-                     //
                      *vpop_addr -= 1;
+                     V(&protected_sem);
 
+                     vpop sem_op;
                      sem_op.sem = &(vs_arr[i].sem_value);
                      sem_op.op = LOCK;
                      r3 = 1;
@@ -56,39 +45,31 @@ void P_Virtual_Semaphore(state_t* old_state, int num){
              }
          }
     }else{
+        V(&protected_sem);
         Terminate(old_state,num);
     }
 }
 
 void V_Virtual_Semaphore(state_t* old_state, int num){
+    vpop sem_op;
+    P(&protected_sem);
     int* vpop_addr = (int*) (old_state->s_r[4]);
     if (vpop_addr >= (int*)SEG2){
+
         // check large than 0
         if (*vpop_addr >= 0){
             *vpop_addr += 1;
+            V(&protected_sem);
         }else{
             int i;
             for (i = 0;i<MAXPROC;i++){
                 if(vs_arr[i].addr == vpop_addr){
-                    // exclusive
-                    vpop sem_op;
-
-                    sem_op.op = LOCK;
-                    sem_op.sem = &protected_sem;
-                    r3 = 1;
-                    r4 = (int)&sem_op;
-                    SYS3();
 
                     vs_arr[i].addr = 0;
-
-                    sem_op.op = UNLOCK;
-                    sem_op.sem = &protected_sem;
-                    r3 = 1;
-                    r4 = (int)&sem_op;
-                    SYS3();
-                    //
                     *vpop_addr += 1;
+                    V(&protected_sem);
 
+                    vpop sem_op;
                     sem_op.sem = &(vs_arr[i].sem_value);
                     sem_op.op = UNLOCK;
                     r3 = 1;
@@ -98,7 +79,9 @@ void V_Virtual_Semaphore(state_t* old_state, int num){
                 }
             }
         }
+        //
     }else{
+        V(&protected_sem);
         Terminate(old_state,num);
     }
 }

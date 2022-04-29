@@ -11,3 +11,5 @@ extern int Tsysstack[5];
 extern int Tmmstack[5];
 extern diks_scheduler ds_arr[MAXPROC];
 extern virtual_sem vs_arr[MAXPROC];
+extern void P(int* sem_value);
+extern void V(int* sem_value);

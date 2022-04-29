@@ -62,7 +62,7 @@ virtual_sem vs_arr[MAXPROC];
 int disk[100][8];
 static void pagedaemon();
 
-static void P(int* sem_value){
+void P(int* sem_value){
      vpop sem_op;
      sem_op.sem = sem_value;
      sem_op.op = LOCK;
@@ -71,7 +71,7 @@ static void P(int* sem_value){
      SYS3();
 }
 
-static void V(int* sem_value){
+void V(int* sem_value){
     vpop sem_op;
     sem_op.sem = sem_value;
     sem_op.op = UNLOCK;
@@ -378,13 +378,13 @@ void pagedaemon(){
             int track = -1;
             int page_frame = -1;
             for (i = 0;i<MAXFRAMES;i++){
+                P(&sem_mm);
                 if (pfs_arr[i].pid != -1){
                     if (pfs_arr[i].seg == 1){
                         int num =  pfs_arr[i].pid;
                         int page = pfs_arr[i].page;
                         if (mm[num].unprivileged_seg_page_table[page].pd_p == 1){
                             // second chance
-                            P(&sem_mm);
                             if (mm[num].unprivileged_seg_page_table[page].pd_r == 1){
                                 mm[num].unprivileged_seg_page_table[page].pd_r = 0;
                             }else{
@@ -403,13 +403,11 @@ void pagedaemon(){
                                 pfs_arr[i].pid = -1;
                                 V(&sem_pf);
                             }
-                            V(&sem_mm);
                         }
 
                     }else if (pfs_arr[i].seg == 2){
                         int page = pfs_arr[i].page;
                         if(shared_seg_table_page_table[page].pd_p == 1){
-                            P(&sem_mm);
                             if (shared_seg_table_page_table[page].pd_r == 1){
                                 shared_seg_table_page_table[page].pd_r = 0;
                             }else{
@@ -428,10 +426,10 @@ void pagedaemon(){
                                 pfs_arr[i].pid = -1;
                                 V(&sem_pf);
                             }
-                            V(&sem_mm);
                         }
                     }
                 }
+                V(&sem_mm);
             }
         }
     }
